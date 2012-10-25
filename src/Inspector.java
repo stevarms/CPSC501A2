@@ -31,7 +31,7 @@ public class Inspector {
 
 		// inspectInterfaces(obj, ObjClass);
 		// inspectMethods(obj, ObjClass);
-		// inspectConstructor(obj, ObjClass);
+		inspectConstructor(obj, ObjClass);
 
 		if ((ObjClass.getSuperclass() != null)
 				&& (ObjClass.getSuperclass() != Object.class)) {
@@ -44,30 +44,17 @@ public class Inspector {
 			inspectFieldClasses(obj, ObjClass, objectsToInspect, recursive);
 	}
 
-	/*
-	 * Inspects object's field's superclass.
-	 */
-	private void inspectFieldClasses(Object obj, Class ObjClass,
-			Vector objectsToInspect, boolean recursive) {
-
-		if (objectsToInspect.size() > 0)
-			System.out.println("Inspecting Field Classes:");
-
-		Enumeration e = objectsToInspect.elements();
-		while (e.hasMoreElements()) {
-			Field f = (Field) e.nextElement();
-			System.out.println("Inspecting Field: " + f.getName());
-
-			try {
-				System.out.println("******************************************************");
-				inspect(f.get(obj), recursive);
-				System.out.println("******************************************************");
-			} catch (NullPointerException nullExp) {
-				System.out.println("Field not instantiated at runtime");
-				System.out.println("******************************************************");
-			} catch (Exception exp) {
-				exp.printStackTrace();
+	private void inspectConstructor(Object obj, Class objClass) {
+		System.out.println();
+		System.out.println("Inspecting "+objClass.getSimpleName()+" Constructor:");
+		Constructor[] constructors = objClass.getConstructors();
+		if (constructors.length > 0){
+			System.out.println(constructors.length+" Constructor(s) Detected");
+			for (int i=0;i<constructors.length;i++){
+				System.out.println("Constructor: "+constructors[i].toString());
 			}
+		}else{
+			System.out.println("No constructors Detected");
 		}
 	}
 
@@ -76,9 +63,8 @@ public class Inspector {
 	 * their value, their type and whether it is private, public etc.
 	 */
 	private void inspectFields(Object obj, Class ObjClass,
-			Vector objectsToInspect)
-
-	{
+			Vector objectsToInspect) {
+		System.out.println();
 		System.out.println("Inspecting " + ObjClass.getSimpleName()
 				+ " Fields:");
 		if (ObjClass.getDeclaredFields().length >= 1) {
@@ -114,5 +100,35 @@ public class Inspector {
 
 		if (ObjClass.getSuperclass() != null)
 			inspectFields(obj, ObjClass.getSuperclass(), objectsToInspect);
+	}
+
+	/*
+	 * Inspects object's field's superclass.
+	 */
+	private void inspectFieldClasses(Object obj, Class ObjClass,
+			Vector objectsToInspect, boolean recursive) {
+
+		if (objectsToInspect.size() > 0)
+			System.out.println("Inspecting Field Classes:");
+
+		Enumeration e = objectsToInspect.elements();
+		while (e.hasMoreElements()) {
+			Field f = (Field) e.nextElement();
+			System.out.println("Inspecting Field: " + f.getName());
+
+			try {
+				System.out
+						.println("******************************************************");
+				inspect(f.get(obj), recursive);
+				System.out
+						.println("******************************************************");
+			} catch (NullPointerException nullExp) {
+				System.out.println("Field not instantiated at runtime");
+				System.out
+						.println("******************************************************");
+			} catch (Exception exp) {
+				exp.printStackTrace();
+			}
+		}
 	}
 }
