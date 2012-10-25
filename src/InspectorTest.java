@@ -1,10 +1,7 @@
 import static org.junit.Assert.*;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-
 import junit.framework.TestCase;
-
 import org.junit.Test;
 
 
@@ -50,8 +47,7 @@ public class InspectorTest extends TestCase{
 	}
 
 	@Test
-    public void testInspectInterfaces()
-    {
+    public void testInspectInterfaces(){
             Class[] interfaces = testClass.getInterfaces();
             assertEquals(interfaces.length,2);
             assertEquals(interfaces[0].getSimpleName(),"Serializable");
