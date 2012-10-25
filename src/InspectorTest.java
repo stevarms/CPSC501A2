@@ -39,5 +39,14 @@ public class InspectorTest extends TestCase{
 		assertEquals(constructors[0].toString(), "public ClassA()");
 		assertEquals(constructors[1].toString(), "public ClassA(int)");
 	}
+	
+	@Test
+	public void testInspectSuperclass(){
+		Inspector testInspector = new Inspector();
+		Object obj = new ClassA();
+		Class objClass = obj.getClass();
+		Class superclass = objClass.getSuperclass();
+		assertEquals(superclass.toString(),"class java.lang.Object");
+	}
 
 }

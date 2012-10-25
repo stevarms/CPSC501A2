@@ -35,7 +35,7 @@ public class Inspector {
 
 		if ((ObjClass.getSuperclass() != null)
 				&& (ObjClass.getSuperclass() != Object.class)) {
-			// inspectSuperclass(obj, ObjClass, objectsToInspect);
+			 inspectSuperclass(obj, ObjClass, objectsToInspect);
 		}
 
 		inspectFields(obj, ObjClass, objectsToInspect);
@@ -43,10 +43,13 @@ public class Inspector {
 		if (recursive)
 			inspectFieldClasses(obj, ObjClass, objectsToInspect, recursive);
 	}
-
+	
+	/*
+	 * Inspects the constructor(s) of an object
+	 */
 	private void inspectConstructor(Object obj, Class objClass) {
 		System.out.println();
-		System.out.println("Inspecting "+objClass.getSimpleName()+" Constructor:");
+		System.out.println("Inspecting "+objClass.getSimpleName()+" Constructors:");
 		Constructor[] constructors = objClass.getConstructors();
 		if (constructors.length > 0){
 			System.out.println(constructors.length+" Constructor(s) Detected");
@@ -57,18 +60,31 @@ public class Inspector {
 			System.out.println("No constructors Detected");
 		}
 	}
-
+	
+	/*
+	 * Inspects the superclass of an object
+	 */
+	private void inspectSuperclass(Object obj, Class objClass,
+			Vector objectsToInspect) {
+		System.out.println();
+		System.out.println("Inspecting "+objClass.getSimpleName()+" Superclasses:");
+		Class superclass = objClass.getSuperclass();
+        //inspectMethods(obj, superclass);
+        inspectConstructor(obj, superclass);
+        inspectFields(obj, superclass, new Vector());
+	}
+	
 	/*
 	 * Inspects the fields of the class. prints the number of fields detected,
 	 * their value, their type and whether it is private, public etc.
 	 */
-	private void inspectFields(Object obj, Class ObjClass,
+	private void inspectFields(Object obj, Class objClass,
 			Vector objectsToInspect) {
 		System.out.println();
-		System.out.println("Inspecting " + ObjClass.getSimpleName()
+		System.out.println("Inspecting " + objClass.getSimpleName()
 				+ " Fields:");
-		if (ObjClass.getDeclaredFields().length >= 1) {
-			Field[] fields = ObjClass.getDeclaredFields();
+		if (objClass.getDeclaredFields().length >= 1) {
+			Field[] fields = objClass.getDeclaredFields();
 			System.out.println(fields.length + " Fields detected");
 			for (int i = 0; i < fields.length; i++) {
 				Field aField = fields[i];
@@ -98,18 +114,18 @@ public class Inspector {
 			System.out.println("No fields detected");
 		}
 
-		if (ObjClass.getSuperclass() != null)
-			inspectFields(obj, ObjClass.getSuperclass(), objectsToInspect);
+		if (objClass.getSuperclass() != null)
+			inspectFields(obj, objClass.getSuperclass(), objectsToInspect);
 	}
 
 	/*
 	 * Inspects object's field's superclass.
 	 */
-	private void inspectFieldClasses(Object obj, Class ObjClass,
+	private void inspectFieldClasses(Object obj, Class objClass,
 			Vector objectsToInspect, boolean recursive) {
 
 		if (objectsToInspect.size() > 0)
-			System.out.println("Inspecting Field Classes:");
+			System.out.println("Inspecting " + objClass.getSimpleName() + " Field Classes:");
 
 		Enumeration e = objectsToInspect.elements();
 		while (e.hasMoreElements()) {
