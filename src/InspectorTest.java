@@ -49,4 +49,11 @@ public class InspectorTest extends TestCase{
 		assertEquals(superclass.toString(),"class java.lang.Object");
 	}
 
+	@Test
+    public void testInspectInterfaces()
+    {
+            Class[] interfaces = testClass.getInterfaces();
+            assertEquals(interfaces.length,2);
+            assertEquals(interfaces[0].getSimpleName(),"Serializable");
+    }
 }
