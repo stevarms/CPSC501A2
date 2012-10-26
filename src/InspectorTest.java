@@ -1,7 +1,10 @@
 import static org.junit.Assert.*;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+
 import junit.framework.TestCase;
+
 import org.junit.Test;
 
 
@@ -24,6 +27,38 @@ public class InspectorTest extends TestCase{
 		Method[] methods = obj.getClass().getMethods();
 		int result = methods.length;
 		assertEquals(result,12);
+        methods = obj.getClass().getDeclaredMethods();
+        result = methods.length;
+        assertEquals( result, 5);
+       
+        String str = methods[0].getName();
+        assertEquals(str,"run");
+       
+        result = methods[0].getModifiers();
+        assertEquals(result,1);
+       
+        str = methods[0].getReturnType().getSimpleName();
+        assertEquals(str,"void");
+       
+		Class[] parameters = methods[0].getParameterTypes();
+		String params = "";
+		if (parameters.length == 0)
+			params = "none";
+		else
+			for (Class aParam : parameters) {
+				params += aParam.getSimpleName() + " ";
+			}
+        assertEquals(params,"none");
+       
+		Class[] exceptions = methods[0].getExceptionTypes();
+		String except = "";
+		if (exceptions.length == 0)
+			except = "none";
+		else
+			for (Class aException : exceptions) {
+				except += aException.getSimpleName() + " ";
+			}
+		assertEquals(except,"none");
 	}
 	
 	@Test
@@ -47,7 +82,8 @@ public class InspectorTest extends TestCase{
 	}
 
 	@Test
-    public void testInspectInterfaces(){
+    public void testInspectInterfaces()
+    {
             Class[] interfaces = testClass.getInterfaces();
             assertEquals(interfaces.length,2);
             assertEquals(interfaces[0].getSimpleName(),"Serializable");

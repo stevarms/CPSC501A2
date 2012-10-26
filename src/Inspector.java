@@ -32,13 +32,12 @@ public class Inspector {
 		inspectInterfaces(obj, objClass);
 		inspectMethods(obj, objClass);
 		inspectConstructor(obj, objClass);
+		inspectFields(obj, objClass, objectsToInspect);
 
 		if ((objClass.getSuperclass() != null)
 				&& (objClass.getSuperclass() != Object.class)) {
 			inspectSuperclass(obj, objClass, objectsToInspect);
 		}
-
-		inspectFields(obj, objClass, objectsToInspect);
 
 		if (recursive)
 			inspectFieldClasses(obj, objClass, objectsToInspect, recursive);
@@ -55,35 +54,53 @@ public class Inspector {
 		if (methods.length >= 1) {
 			System.out.println(methods.length + " method(s) detected");
 			for (int i = 0; i < methods.length; i++) {
-				Class[] parameters = methods[i].getParameterTypes();
-				String params = "";
-				if (parameters.length == 0)
-					params = "none";
-				else
-					for (Class aParam : parameters) {
-						params += aParam.getSimpleName() + " ";
-					}
-				Class[] exceptions = methods[i].getExceptionTypes();
-				String except = "";
-				if (exceptions.length == 0)
-					except = "none";
-				else
-					for (Class aException : exceptions) {
-						except += aException.getSimpleName() + " ";
-					}
-				System.out.println("Method: '" + methods[i].getName()
+				Method aMethod = methods[i];
+				String params = getMethodParameters(aMethod);
+				String except = getMethodExceptions(aMethod);
+				System.out.println("Method: '" + aMethod.getName()
 						+ "'\n\t-Parameter Type(s): " + params
 						+ "\n\t-Modifier(s): "
-						+ Modifier.toString(methods[i].getModifiers())
-						+ "\n\t-Return Type(s): " + methods[i].getReturnType()
+						+ Modifier.toString(aMethod.getModifiers())
+						+ "\n\t-Return Type(s): " + aMethod.getReturnType()
 						+ "\n\t-Exception Type(s): " + except);
 			}
+			System.out.println("End of '" + objClass.getSimpleName()
+					+ "' methods");
 		} else {
 			System.out.println("No methods detected");
 		}
-
 	}
 
+	/*
+	 * returns a list of the exceptions thrown by a method
+	 */
+	private String getMethodExceptions(Method aMethod) {
+		Class[] exceptions = aMethod.getExceptionTypes();
+		String except = "";
+		if (exceptions.length == 0)
+			except = "none";
+		else
+			for (Class aException : exceptions) {
+				except += aException.getSimpleName() + " ";
+			}
+		return except;
+	}
+
+	/*
+	 * returns a list of parameters for a method
+	 */
+	private String getMethodParameters(Method aMethod) {
+		Class[] parameters = aMethod.getParameterTypes();
+		String params = "";
+		if (parameters.length == 0)
+			params = "none";
+		else
+			for (Class aParam : parameters) {
+				params += aParam.getSimpleName() + " ";
+			}
+		return params;
+	}
+	
 	/*
 	 * Inspects the interfaces of the object
 	 */
@@ -101,6 +118,8 @@ public class Inspector {
 				inspectMethods(obj, interfaces[i]);
 				inspectConstructor(obj, interfaces[i]);
 			}
+			System.out.println("End of '" + objClass.getSimpleName()
+					+ "' interfaces");
 		} else {
 			System.out.println("No interfaces found");
 		}
@@ -118,12 +137,32 @@ public class Inspector {
 			System.out
 					.println(constructors.length + " Constructor(s) Detected");
 			for (int i = 0; i < constructors.length; i++) {
-				System.out
-						.println("Constructor: " + constructors[i].toString());
+				Constructor aConstructor = constructors[i];
+				String params = getConstructorParameters(aConstructor);
+				System.out.println("Constructor: " + aConstructor.getName()
+						+ "\n\t-Parameters: " + params + "\n\t-Modifiers: "
+						+ Modifier.toString(aConstructor.getModifiers()));
 			}
+			System.out.println("End of '" + objClass.getSimpleName()
+					+ "' constructors");
 		} else {
 			System.out.println("No constructors Detected");
 		}
+	}
+
+	/*
+	 * returns a list of the parameters for a constructor
+	 */
+	private String getConstructorParameters(Constructor aConstructor) {
+		Class[] parameters = aConstructor.getParameterTypes();
+		String params = "";
+		if (parameters.length == 0)
+			params = "none";
+		else
+			for (Class aParam : parameters) {
+				params += aParam.getSimpleName() + " ";
+			}
+		return params;
 	}
 
 	/*
@@ -158,28 +197,36 @@ public class Inspector {
 				if (!aField.getType().isPrimitive())
 					objectsToInspect.addElement(aField);
 
-				try {
-					if (aField.getType().isArray()) {
-						System.out.println("Field: '" + aField.getName()
-								+ "'\n\t-Type: "
-								+ aField.getType().getComponentType()
-								+ "\n\t-Modifier: "
-								+ Modifier.toString(aField.getModifiers()));
-					} else {
-						System.out.println("Field: '" + aField.getName()
-								+ "' = " + aField.get(obj) + "\n\t-Type: "
-								+ aField.getType() + "\n\t-Modifier: "
-								+ Modifier.toString(aField.getModifiers()));
-					}
-				} catch (Exception e) {
-				}
+				printFields(obj, aField);
 			}
+			System.out.println("End of '" + objClass.getSimpleName()
+					+ "' fields");
 		} else {
 			System.out.println("No fields detected");
 		}
 
 		if (objClass.getSuperclass() != null)
 			inspectFields(obj, objClass.getSuperclass(), objectsToInspect);
+	}
+
+	/*
+	 * prints the field information to console
+	 */
+	private void printFields(Object obj, Field aField) {
+		try {
+			if (aField.getType().isArray()) {
+				System.out.println("Field: '" + aField.getName()
+						+ "'\n\t-Type: " + aField.getType().getComponentType()
+						+ "\n\t-Modifier: "
+						+ Modifier.toString(aField.getModifiers()));
+			} else {
+				System.out.println("Field: '" + aField.getName() + "' = "
+						+ aField.get(obj) + "\n\t-Type: " + aField.getType()
+						+ "\n\t-Modifier: "
+						+ Modifier.toString(aField.getModifiers()));
+			}
+		} catch (Exception e) {
+		}
 	}
 
 	/*
@@ -211,5 +258,7 @@ public class Inspector {
 				exp.printStackTrace();
 			}
 		}
+		System.out.println("End of '" + objClass.getSimpleName()
+				+ "' field classes");
 	}
 }
